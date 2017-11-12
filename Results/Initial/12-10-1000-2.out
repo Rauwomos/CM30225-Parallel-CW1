@@ -1,0 +1,73 @@
+Threads: 12
+Size of Pane: 10
+Iterations: 107
+Time: 0.016067
+Threads: 12
+Size of Pane: 25
+Iterations: 650
+Time: 0.094104
+Threads: 12
+Size of Pane: 50
+Iterations: 2364
+Time: 0.376881
+Threads: 12
+Size of Pane: 75
+Iterations: 4935
+Time: 0.742019
+Threads: 12
+Size of Pane: 100
+Iterations: 8256
+Time: 1.148625
+Threads: 12
+Size of Pane: 150
+Iterations: 16863
+Time: 2.374848
+Threads: 12
+Size of Pane: 200
+Iterations: 27757
+Time: 4.270180
+Threads: 12
+Size of Pane: 250
+Iterations: 40642
+Time: 6.930173
+Threads: 12
+Size of Pane: 300
+Iterations: 55287
+Time: 10.592424
+Threads: 12
+Size of Pane: 350
+Iterations: 71507
+Time: 15.749406
+Threads: 12
+Size of Pane: 400
+Iterations: 89145
+Time: 22.302127
+Threads: 12
+Size of Pane: 450
+Iterations: 108063
+Time: 31.101446
+Threads: 12
+Size of Pane: 500
+Iterations: 128143
+Time: 41.436540
+Threads: 12
+Size of Pane: 750
+Iterations: 242538
+Time: 139.590355
+Threads: 12
+Size of Pane: 1000
+Iterations: 373218
+Time: 342.513917
+
+########################################################################
+----------------------! Balena Job Details !----------------------------
+
+JobID          : 1051280
+No. of nodes   : 1
+No. of CPUs    : 16
+Timelimit      : 00:15:00
+Elapsed time   : 00:10:39
+Nodelist       : node-sw-163
+
+########################################################################
+

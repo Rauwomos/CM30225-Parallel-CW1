@@ -1,0 +1,66 @@
+Threads: 1
+Size of Pane: 10
+Iterations: 88
+Time: 0.000058
+Threads: 1
+Size of Pane: 25
+Iterations: 516
+Time: 0.002643
+Threads: 1
+Size of Pane: 50
+Iterations: 1805
+Time: 0.039630
+Threads: 1
+Size of Pane: 75
+Iterations: 3658
+Time: 0.190735
+Threads: 1
+Size of Pane: 100
+Iterations: 5970
+Time: 0.555422
+Threads: 1
+Size of Pane: 150
+Iterations: 11684
+Time: 2.466492
+Threads: 1
+Size of Pane: 200
+Iterations: 18519
+Time: 6.968729
+Threads: 1
+Size of Pane: 250
+Iterations: 26177
+Time: 15.475070
+Threads: 1
+Size of Pane: 300
+Iterations: 34430
+Time: 29.281760
+Threads: 1
+Size of Pane: 350
+Iterations: 43092
+Time: 50.093955
+Threads: 1
+Size of Pane: 400
+Iterations: 52004
+Time: 79.006255
+Threads: 1
+Size of Pane: 450
+Iterations: 61032
+Time: 117.764697
+Threads: 1
+Size of Pane: 500
+Iterations: 70054
+Time: 166.861300
+slurmstepd: error: *** JOB 1056681 ON node-sw-161 CANCELLED AT 2017-11-08T11:51:35 DUE TO TIME LIMIT ***
+
+########################################################################
+----------------------! Balena Job Details !----------------------------
+
+JobID          : 1056681
+No. of nodes   : 1
+No. of CPUs    : 16
+Timelimit      : 00:15:00
+Elapsed time   : 00:15:04
+Nodelist       : node-sw-161
+
+########################################################################
+
