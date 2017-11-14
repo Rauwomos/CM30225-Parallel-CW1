@@ -2,8 +2,8 @@ from string import Template
 
 # Templates
 submitTemplate = Template('#!/bin/sh\n#SBATCH --account=cm30225\n#SBATCH --partition=teaching\n#SBATCH --job-name=${job_name}\n#SBATCH --nodes=1\n#SBATCH --time=00:15:00\n#SBATCH --output=${job_name}.out\n${run}')
-runSingleTemplate = Template('./single-checkerboard -s $size -u 1 -d 3 -l 4 -r 2 -p 0.00001')
-runMultiTemplate = Template('./multi-checkerboard -s $size -u 1 -d 3 -l 4 -r 2 -p 0.00001 -t $thread_count')
+runSingleTemplate = Template('./single -s $size -u 1 -d 3 -l 4 -r 2 -p 0.00001')
+runMultiTemplate = Template('./multi -s $size -u 1 -d 3 -l 4 -r 2 -p 0.00001 -t $thread_count')
 jobNameTemplate = Template('rw-${thread_count}-${size}')
 fileNameTemplate = Template('submit-${thread_count}-${size}.slm')
 
