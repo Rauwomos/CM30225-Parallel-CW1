@@ -97,7 +97,7 @@ void relaxRow(unsigned int iMax, unsigned int jMax, double** plane, double toler
             plane[i][j+4] = r1[1];
             plane[i][j+6] = r1[0];
         }
-        for(j=((i+offset)%2)+jMax; j<iMax; j++) {
+        for(j=((i+offset)%2)+jMax; j<iMax; j+=2) {
             pVal = plane[i][j];
             plane[i][j] = (plane[i-1][j] + plane[i+1][j] + plane[i][j-1] + plane[i][j+1])/4;
             if(endFlag && tolerance < fabs(plane[i][j]-pVal)) {
