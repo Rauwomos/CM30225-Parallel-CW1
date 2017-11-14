@@ -31,13 +31,19 @@ long double toSeconds(struct timespec start, struct timespec end) {
     return (long double) totalNS / 1000000000.0;
 }
 
+void printPlane(double** plane, unsigned int sizeOfPlane) {
+    for(unsigned int x=0; x<sizeOfPlane; x++) {
+        for(unsigned int y=0; y<sizeOfPlane; y++) {
+            printf("%f, ", plane[x][y]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
 // TODO proper doc string
 // Generates a 2D array of uninitialised doubles
 double** newPlane(unsigned int n) {
-    // double** plane = ( double** )malloc(n * sizeof(double*));
-    // for (unsigned int i = 0; i < n; ++i)
-    //     plane[i] = ( double* )malloc(n * sizeof(double));
-
     double** plane  = ( double** )malloc(sizeof(double*) * n);
     plane[0] = (double *)malloc(sizeof(double) * n * n);
  
@@ -45,13 +51,6 @@ double** newPlane(unsigned int n) {
         plane[i] = (*plane + n * i);
 
     return plane;
-}
-
-void freePlane(unsigned int n, double** plane) {
-    for (unsigned int i = 0; i < n; ++i)
-        free(plane[i]);
-    free(plane);
-    return;
 }
 
 // TODO proper doc string
@@ -127,16 +126,6 @@ void relaxRows(unsigned int iMax, unsigned int jMax, double** plane, double tole
     }
 }
 
-void printPlane(double** plane, unsigned int sizeOfPlane) {
-    for(unsigned int x=0; x<sizeOfPlane; x++) {
-        for(unsigned int y=0; y<sizeOfPlane; y++) {
-            printf("%f, ", plane[x][y]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-
 // Runs the relaxation technique on the 2d array of doubles that it is passed.
 void relaxPlaneThread(ThreadData* threadData)
 {  
@@ -168,7 +157,7 @@ void relaxPlaneThread(ThreadData* threadData)
         pthread_barrier_wait(&barrierGeneric);
         pthread_barrier_wait(&barrierGeneric);
         if(childFinishedFlag) {
-            break;
+            return;
         }
     }
 }
@@ -212,6 +201,7 @@ unsigned long relaxPlaneMain(ThreadData* threadData)
         pthread_barrier_wait(&barrierGeneric);
         if(finishedFlag) {
             childFinishedFlag = true;
+            pthread_barrier_wait(&barrierGeneric);
             return iterations;
         }
         finishedFlag = true;
@@ -334,26 +324,26 @@ int main(int argc, char **argv)
 
     iterations = relaxPlaneMain(&threadData[threadCount-1]);
 
+    // Stop the timer before joining/freeing threads as this is something
+    // that I could just leave to the OS due to how the program runs
     clock_gettime(CLOCK_MONOTONIC, &end);
 
+    for(i=0; i<threadCount-1; i++) {
+    /* wait for the second thread to finish */
+        if(pthread_join(threads[i], NULL)) {
+            fprintf(stderr, "Error joining thread\n");
+            return 2;
+        }
+    }
+
+    pthread_barrier_destroy(&barrierGeneric);
 
     if(debug)
         printPlane(plane, sizeOfPlane);
 
-    // If I wanted the main thread to wait until all of child threads had
-    // joined before ending the program. Due to how the  program works,
-    // relaxPlaneMain will not finish until all the child threads are anyway.
-    // for(i=0; i<threadCount-1; i++) {
-    // /* wait for the second thread to finish */
-    //     if(pthread_join(threads[i], NULL)) {
-    //         fprintf(stderr, "Error joining thread\n");
-    //         return 2;
-    //     }
-    // }
-
-    // pthread_barrier_destroy(&barrierGeneric);
-    // freePlane(sizeOfPlane, plane);
-    // free(threadData);
+    free(*plane);
+    free(plane);
+    free(threadData);
 
     printf("Threads: %d\n", threadCount);
     printf("Size of Pane: %d\n", sizeOfPlane);

@@ -19,9 +19,12 @@ long double toSeconds(struct timespec start, struct timespec end) {
 // TODO propper doc string
 // Generates a 2D array of uninitialised doubles
 double** newPlane(unsigned int n) {
-    double** plane = ( double** )malloc(n * sizeof(double*));
-    for (unsigned int i = 0; i < n; ++i)
-        plane[i] = ( double* )malloc(n * sizeof(double));
+    double** plane  = ( double** )malloc(n * sizeof(double*));
+    plane[0] = ( double * )malloc(n * n * sizeof(double));
+ 
+    for(unsigned int i = 0; i < n; i++)
+        plane[i] = (*plane + n * i);
+
     return plane;
 }
 
@@ -129,47 +132,6 @@ unsigned long relaxPlane(double** plane, unsigned int sizeOfPlane, double tolera
         iterations++;
         relaxRow(iMax,jMax,plane,tolerance,0);
         relaxRow(iMax,jMax,plane,tolerance,1);
-        // printf("Checkerboard 1, Iteration: %lu\n", iterations);
-        // printPlane(plane, sizeOfPlane);
-        // for(i=1; i<iMax; i++){
-        //     for(j=((i+1)%2)+1; j<jMax; j+=8) {
-        //         // Up Down
-        //         v1 = _mm256_set_pd(plane[i-1][j],plane[i-1][j+2],plane[i-1][j+4],plane[i-1][j+6]);
-        //         v2 = _mm256_set_pd(plane[i+1][j],plane[i+1][j+2],plane[i+1][j+4],plane[i+1][j+6]);
-        //         r1 = _mm256_add_pd(v1,v2);
-        //         // Left Right
-        //         v1 = _mm256_set_pd(plane[i][j-1],plane[i][j+1],plane[i][j+3],plane[i][j+5]);
-        //         v2 = _mm256_set_pd(plane[i][j+1],plane[i][j+3],plane[i][j+5],plane[i][j+7]);
-        //         r2 = _mm256_add_pd(v1,v2);
-        //         // total
-        //         r1 = _mm256_add_pd(r1,r2);
-        //         r1 = _mm256_div_pd(r1,four);
-        //         // tolerance
-        //         if(endFlag) {
-        //             r2 = _mm256_set_pd(plane[i][j],plane[i][j+2],plane[i][j+4],plane[i][j+6]);
-        //             r2 = _mm256_sub_pd(r1, r2);
-        //             for(k=0; k<4; k++) {
-        //                 if(fabs(r2[k])>tolerance) {
-        //                     endFlag = false;
-        //                     break;
-        //                 }
-        //             }
-        //         }
-        //         plane[i][j] = r1[3];
-        //         plane[i][j+2] = r1[2];
-        //         plane[i][j+4] = r1[1];
-        //         plane[i][j+6] = r1[0];
-        //     }
-        //     for(j=((i+1)%2)+jMax; j<iMax; j++) {
-        //         pVal = plane[i][j];
-        //         plane[i][j] = (plane[i-1][j] + plane[i+1][j] + plane[i][j-1] + plane[i][j+1])/4;
-        //         if(endFlag && tolerance < fabs(plane[i][j]-pVal)) {
-        //             endFlag = false;
-        //         }
-        //     }
-        // }
-        // printf("Checkerboard 2, Iteration: %lu\n", iterations);
-        // printPlane(plane, sizeOfPlane);
         if(endFlag) {
             break;
         }
