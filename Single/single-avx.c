@@ -194,15 +194,6 @@ int main(int argc, char **argv)
                 return 1;
     }
 
-    // for(int i=0; i<6; i++) {
-    //     if(argsSet[i]) {
-    //         fprintf (stderr, "All arguments must be set\n");
-    //         // TODO print help stuff
-    //         printf("TODO help info\n");
-    //         return 1;
-    //     }
-    // }
-
     // Size of the plane must be at least 3x3
     if(sizeOfPlane < 3) {
         fprintf (stderr, "The size of the plane must be greater than 2\n");
@@ -223,6 +214,9 @@ int main(int argc, char **argv)
 
     if(debug)
         printPlane(plane, sizeOfPlane);
+
+    free(*plane);
+    free(plane);
 
     printf("Threads: 1\n");
     printf("Size of Pane: %d\n", sizeOfPlane);

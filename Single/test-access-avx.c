@@ -7,12 +7,12 @@
 
 int main(void)
 {   
-    unsigned int sizeOfPlane = 12;
+    unsigned int sizeOfPlane = 64;
     // unsigned int threadCount = 3;
     unsigned int i,j;
 
     unsigned int sizeOfInner = sizeOfPlane-2;
-    unsigned int remaindingItemsPR = sizeOfInner%4;
+    unsigned int remaindingItemsPR = sizeOfInner%8;
     unsigned int iMax = sizeOfPlane-1;
     unsigned int jMax = iMax-remaindingItemsPR;
 
