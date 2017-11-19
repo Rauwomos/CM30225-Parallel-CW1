@@ -57,7 +57,7 @@ unsigned long relaxPlane(double** plane, unsigned int sizeOfPlane, double tolera
     unsigned int i,j;
     double pVal;
     bool endFlag;
-    while (1) {
+    do {
         endFlag = true;
         iterations++;
         // i then j, accessing continues blocks of memory. Increases speed by 1/3
@@ -70,11 +70,8 @@ unsigned long relaxPlane(double** plane, unsigned int sizeOfPlane, double tolera
                 }
             }
         }
-        if(endFlag) {
-            break;
-        }
-    }
-
+    } while(!endFlag);
+    
     return iterations;
 }
 
@@ -94,7 +91,7 @@ int main(int argc, char **argv)
 
     double** plane;
 
-    sizeOfPlane = 350;
+    sizeOfPlane = 100;
     tolerance = 0.000001;
     left = 4;
     right = 2;
@@ -146,14 +143,14 @@ int main(int argc, char **argv)
                 return 1;
     }
 
-    for(int i=0; i<6; i++) {
-        if(argsSet[i]) {
-            fprintf (stderr, "All arguments must be set\n");
-            // TODO print help stuff
-            printf("TODO help info\n");
-            return 1;
-        }
-    }
+    // for(int i=0; i<6; i++) {
+    //     if(argsSet[i]) {
+    //         fprintf (stderr, "All arguments must be set\n");
+    //         // TODO print help stuff
+    //         printf("TODO help info\n");
+    //         return 1;
+    //     }
+    // }
 
     // Size of the plane must be at least 3x3
     if(sizeOfPlane < 3) {

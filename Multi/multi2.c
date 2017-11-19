@@ -156,9 +156,8 @@ unsigned long relaxPlaneMain(ThreadData* threadData)
         relaxPlaneRows(threadData->plane, threadData->sizeOfPlane, threadData->tolerance, startingRow, endingRow);
 
         pthread_barrier_wait(&barrierGeneric);
-        if(finishedFlag) {
+        if(finishedFlag)
             return iterations;
-        }
         pthread_barrier_wait(&barrierGeneric);
         finishedFlag = true;
         pthread_barrier_wait(&barrierGeneric);
@@ -244,14 +243,14 @@ int main(int argc, char **argv)
                 return 1;
     }
 
-    for(int i=0; i<6; i++) {
-        if(argsSet[i]) {
-            fprintf (stderr, "All arguments must be set\n");
-            // TODO print help stuff
-            printf("TODO help info\n");
-            return 1;
-        }
-    }
+    // for(int i=0; i<6; i++) {
+    //     if(argsSet[i]) {
+    //         fprintf (stderr, "All arguments must be set\n");
+    //         // TODO print help stuff
+    //         printf("TODO help info\n");
+    //         return 1;
+    //     }
+    // }
 
     // Size of the plane must be at least 3x3
     if(sizeOfPlane < 3) {

@@ -9,11 +9,11 @@ def print2DArray(array):
         print()
     return
 
-dirPath = os.path.dirname(os.path.realpath(__file__)) + '/V4-AVX/'
+dirPath = os.path.dirname(os.path.realpath(__file__)) + '/V2-Checkerboard-2/'
 globPattern = dirPath + "*.out"
 
-problemSizes = [0,10,50,100,150,200,250,300,350,400,450,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,2000,2500,3000,3500,4000,4500]
-threadCounts = [0,1,2,4,6,8,10,12,14,16]
+problemSizes = [0,10,50,100,150,200,250,300,350,400,450,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600]
+threadCounts = [0,1,2,4,6,8,10,12,14,16,17,18,20,30]
 filePaths = glob(globPattern)
 
 resultsTimings = [['0' for x in range(len(problemSizes))] for y in range(len(threadCounts))] 

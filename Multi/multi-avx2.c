@@ -128,6 +128,7 @@ void relaxRows(unsigned int iMax, unsigned int jMax, double** plane, double tole
 // Runs the relaxation technique on the 2d array of doubles that it is passed.
 void relaxPlaneThread(ThreadData* threadData)
 {  
+    printf("Thread ID %d\n", threadData->id);
     unsigned int iMax,jMax,startingRow,endingRow,remainingRows,rowsPerThreadE,rowsPerThreadS,sizeOfInner,remaindingItemsPR;
 
     sizeOfInner = threadData->sizeOfPlane-2;
@@ -164,6 +165,7 @@ void relaxPlaneThread(ThreadData* threadData)
 
 unsigned long relaxPlaneMain(ThreadData* threadData)
 {
+    printf("Thread ID %d\n", threadData->id);
     unsigned int iMax,jMax,startingRow,endingRow,remainingRows,rowsPerThreadE,rowsPerThreadS,sizeOfInner,remaindingItemsPR;
     unsigned long iterations = 0;
 
