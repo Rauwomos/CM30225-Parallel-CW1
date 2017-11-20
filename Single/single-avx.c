@@ -73,18 +73,18 @@ void relaxRow(unsigned int iMax, unsigned int jMax, double** plane, double toler
 
     for(i=1; i<iMax; i++){
         for(j=((i+offset)%2)+1; j<jMax; j+=8) {
-            // Up Down
+            // Add Up & Down
             v1 = _mm256_set_pd(plane[i-1][j],plane[i-1][j+2],plane[i-1][j+4],plane[i-1][j+6]);
             v2 = _mm256_set_pd(plane[i+1][j],plane[i+1][j+2],plane[i+1][j+4],plane[i+1][j+6]);
             r1 = _mm256_add_pd(v1,v2);
-            // Left Right
+            // Add Left & Right
             v1 = _mm256_set_pd(plane[i][j-1],plane[i][j+1],plane[i][j+3],plane[i][j+5]);
             v2 = _mm256_set_pd(plane[i][j+1],plane[i][j+3],plane[i][j+5],plane[i][j+7]);
             r2 = _mm256_add_pd(v1,v2);
-            // total
+            // Add both results and divide them all by 4
             r1 = _mm256_add_pd(r1,r2);
             r1 = _mm256_div_pd(r1,four);
-            // tolerance
+            // Work out if any of them change more than the tolerance
             if(endFlag) {
                 r2 = _mm256_set_pd(plane[i][j],plane[i][j+2],plane[i][j+4],plane[i][j+6]);
                 r2 = _mm256_sub_pd(r1, r2);
@@ -95,11 +95,13 @@ void relaxRow(unsigned int iMax, unsigned int jMax, double** plane, double toler
                     }
                 }
             }
+            // Store the results back into the 2D array
             plane[i][j] = r1[3];
             plane[i][j+2] = r1[2];
             plane[i][j+4] = r1[1];
             plane[i][j+6] = r1[0];
         }
+        // Fallback to the old method for the remaining items in the row
         for(j=((i+offset)%2)+jMax; j<iMax; j+=2) {
             pVal = plane[i][j];
             plane[i][j] = (plane[i-1][j] + plane[i+1][j] + plane[i][j-1] + plane[i][j+1])/4;
