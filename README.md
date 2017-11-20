@@ -13,7 +13,7 @@ To run the programs you must pass in arguments for the values of each edge, the 
   ./single -s 1000 -u 1 -d 3 -l 4 -r 2 -p 0.00001
   ./multi -s 1000 -u 1 -d 3 -l 4 -r 2 -p 0.00001 -t 2
   ```
-  ```shell
+  ```
   -u give value for top edge
   -d give value for bottom edge
   -r give value for right edge
