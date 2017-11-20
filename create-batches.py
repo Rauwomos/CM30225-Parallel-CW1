@@ -21,7 +21,7 @@ def createSubmitFile(threadCount, problemSize):
 
 # problemSizes = [10,50,100,150,200,250,300,350,400,450,500,600,700,800,900,1000]
 # threadCounts = [1,2,4,6,8,10,12,14,16]
-problemSizes = [10,50]
+problemSizes = [10]
 threadCounts = [1,2]
 
 for threadCount in threadCounts:

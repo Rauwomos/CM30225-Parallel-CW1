@@ -23,6 +23,7 @@
 \usepackage{wrapfig}
 \usepackage{titling}
 \usepackage{multicol}
+\usepackage{amsmath}
 
 
 \renewcommand{\lstlistingname}{Code Snippet}
@@ -60,7 +61,6 @@
 \begin{document}
 
 \maketitle % Insert the title, author and date
-TODO check valgrind output1
 \pagebreak
 
 \chapter{Code}
@@ -170,14 +170,6 @@ With this version I created a function \textit{relaxRow} that calculates the new
 As the number of iterations that it has to complete is very similar if not sometimes more than my original version, it is not immediately obvious why this version performs so much better. However by using the cachegrind tool in valgrind, you are able to see that my second version has an L1 data cache miss rate that is less than half that of my first version.
 
 \begin{lstlisting}[style=customv,caption=Version 1 Cachegrind]
-==65481== Cachegrind, a cache and branch-prediction profiler
-==65481== Copyright (C) 2002-2012, and GNU GPL'd, by Nicholas Nethercote et al.
-==65481== Using Valgrind-3.8.1 and LibVEX; rerun with -h for copyright info
-==65481== Command: ./single -s 300 -u 1 -d 3 -l 4 -r 2 -p 0.00001
-==65481==
---65481-- warning: Unknown Intel cache config value (0x63), ignoring
---65481-- warning: L3 cache found, using its data for the LL simulation.
-==65481==
 ==65481== I   refs:      59,145,477,672
 ==65481== I1  misses:             1,217
 ==65481== LLi misses:             1,193
@@ -195,14 +187,6 @@ As the number of iterations that it has to complete is very similar if not somet
 ==65481== LL miss rate:             0.0% (           0.0%     +           0.0%  )
 \end{lstlisting}
 \begin{lstlisting}[style=customv,caption=Version 2 Cachegrind]
-==23608== Cachegrind, a cache and branch-prediction profiler
-==23608== Copyright (C) 2002-2012, and GNU GPL'd, by Nicholas Nethercote et al.
-==23608== Using Valgrind-3.8.1 and LibVEX; rerun with -h for copyright info
-==23608== Command: ./single-chequerboard -s 300 -u 1 -d 3 -l 4 -r 2 -p 0.00001
-==23608==
---23608-- warning: Unknown Intel cache config value (0x63), ignoring
---23608-- warning: L3 cache found, using its data for the LL simulation.
-==23608==
 ==23608== I   refs:      59,754,099,652
 ==23608== I1  misses:             1,215
 ==23608== LLi misses:             1,192
@@ -221,8 +205,7 @@ As the number of iterations that it has to complete is very similar if not somet
 \end{lstlisting}
 
 \section{Version 3}
-In my final version, I attempted to implement a SWAR using Advanced Vector Extensions (AVX). This would allow me to reduce runtime further by effectively combining up to four arithmetic instructions into one. This added a lot more complexity, as figuring out which parts of the row to use this method on could easily have increased overheads to the point where using AVX would actually become inefficient. In order to keep things simple, I further split up each row into a part that could easily utilise AVX, followed by a parlatenct which would be harder. If the length of the row, ignoring the ends, can be divided by 8 without any remainder, then it is easy to do calculation on 4 value chunks, while still doing a chequerboard pattern. To keep it simple I decided that if there were any remaining points, then I was just fall back to the same method that I used in my second version to calculate the new value for the these points. In practice, any slight slowdown caused by this would become negligible, the larger the problem size. If I had put more time into this, I could have either done SWAR on the remaining points, without utilising the full size of the register, or I could have figured out a way to wrap around onto the next line, continuing to use the full capabilities of AVX as long as possible. The main loop for this version is again very similar, except that two more variables \textit{imax} and \textit{jmax} are passed to the relaxRows function. These tell the function at what point in a row they should stop using AVX and to fall back to the old method. Code Snippets 1.8 and 1.9 show the sequential and parallel main loops respectively.
-\pagebreak
+In my final version, I attempted to implement a SWAR using Advanced Vector Extensions (AVX). This would allow me to reduce runtime further by effectively combining up to four arithmetic instructions into one. This added a lot more complexity, as figuring out which parts of the row to use this method on could easily have increased overheads to the point where using AVX would actually become inefficient. In order to keep things simple, I further split up each row into a part that could easily utilise AVX, followed by a parlatenct which would be harder. If the length of the row, ignoring the ends, can be divided by 8 without any remainder, then it is easy to do calculation on 4 value chunks, while still doing a chequerboard pattern. To keep it simple I decided that if there were any remaining points, then I was just fall back to the same method that I used in my second version to calculate the new value for the these points. In practice, any slight slowdown caused by this would become negligible, the larger the problem size. If I had put more time into this, I could have either done SWAR on the remaining points, without utilising the full size of the register, or I could have figured out a way to wrap around onto the next line, continuing to use the full capabilities of AVX as long as possible. The main loop for this version is again very similar, except that two more variables \textit{imax} and \textit{jmax} are passed to the relaxRows function. These tell the function at what point in a row they should stop using AVX and to fall back to the old method. Code Snippets 1.8 and 1.9 show the sequential and parallel main loops respectively.\\
 \begin{lstlisting}[style=customc,caption=Version 3 Sequential Main Loop]
     remaindingItemsPR = sizeOfInner%8;
     iMax = sizeOfPlane-1;
@@ -237,6 +220,7 @@ In my final version, I attempted to implement a SWAR using Advanced Vector Exten
         }
     }
 \end{lstlisting}
+\pagebreak
 \begin{lstlisting}[style=customc,caption=Version 3 Parallel Main Loop]
    while (1) {
         iterations++;
@@ -254,11 +238,128 @@ In my final version, I attempted to implement a SWAR using Advanced Vector Exten
         pthread_barrier_wait(&barrierGeneric);
     }
 \end{lstlisting}
-As it shows in my scalability testing, this version is not much faster than my second version. However if I was to run my program on an Intel processor with a newer architecture, I would expect it to run faster TODO insert example. Also, If I used a processor that supported AVX-512, I could optimise the program further and do arithmetic on up to 8 packed doubles at once.
+As it shows in my scalability testing, this version is not much faster than my second version. However if I was to run my program on an Intel processor with a newer architecture, I would expect it to run faster due to more optimisations in AVX vs standard floating point arithmetic instructions. Also, If I used a processor that supported AVX-512, I could optimise the program further and do arithmetic on up to 8 packed doubles at once.
 \chapter{Correctness Testing}
-I was able to confirm that for small test sizes my final program was correct by manually calculating the result by hand and comparing my result with that of my program. Due to how I am traversing the data in the 2D array, I do not have any race conditions that could affect the result outputted by my program. This means that if the result is correct for the sequential algorithm, then it will also be correct for the parallel algorithm. While I was not able to print out the result of every single run, as I would have run out of storage space, and some of the programs would have run out of time, I did compare a number of results. For each test I also printed out the number of iterations that the program took to reach a solution, so that if there was an error that only happened occupationally, it would have been much easier to spot.
+I was able to confirm that for small test sizes my final program was correct by manually calculating the result by hand and comparing my result with that of my program. Due to how I am traversing data in the 2D array, I do not have any race conditions that could affect the result outputted by my program. This means that if the result is correct for the sequential algorithm, then it will also be correct for the parallel algorithm.
+While I was not able to print out the result of every single run, as I would have run out of storage space, and some of the programs would have run out of time, I did compare a number of results. For all of the tests that I did print results from, the solution was identical for all of them. For each test I also printed out the number of iterations that the program took to reach a solution, so that if there was an error that only happened occupationally, but affected the result, it would have been much easier to spot.
 \chapter{Scalability Testing}
+To measure the performance of my parallel algorithms, I gathered a large range of results from balena, using various thread counts and problem sizes. I will be using a number of common metrics including speedup, efficiency, Karp-Flatt Metric and isoefficiency.\\
 
+Speedup on P processors is equal to the time to run the sequential algorithm divided by the time to run the parallel algorithm on p processors. This assumes that the problem size is constant.
+
+$$Speedup\ _p=\frac{Sequential\ Time}{Parrallel\ Time\ _p}$$\\
+
+Efficiency is equal to the amount of speedup per processor. It is a measure of how efficiently my parallel algorithm is using the extra processors.
+
+$$Efficiency\ _p=\frac{S_p}{p}=\frac{Sequential\ Time}{p\times Parrallel\ Time\ _p}$$\\
+
+The Karp-Flatt metric can be used to effectively measure the sequential portion of parallel programs. Generally it is between zero and one, though may be more than one if there is slowdown, or less than zero if there is superlinear speedup.\\
+
+$$e=\frac{\frac{1}{S_p}-\frac{1}{p}}{1-\frac{1}{p}}$$\\
+
+Overhead is required to calculate isoefficiency. It effectively tells us how much extra time was added in overheads while parallelising the sequential algorithm. A smaller overhead also means that the parallel algorithm is work efficient.\\
+
+$$T_o=pT_p - T_s$$\\
+
+Isoefficiency allows me to measure how scalable my parallel algorithm is. It is generally between zero and one. The closer isoefficiency is to one, the better it scales.\\
+
+$$E=\frac{1}{1+\frac{T_o}{T_s}}$$\\
+\section{Time to Run}
+To test the scalability of my different algorithms, I measure the time that it took to complete the relaxation part of the algorithm. Instead of using the time given by the output from balena, I recorded the time just before and after it started smoothing the array. For the parallel version I included the time it took to spawn and allocate the jobs to the child threads, as this is an overhead of the parallel algorithms. I did not include the time it took to join the threads and free the allocated memory, as I could have left it to be cleaned up by the OS. In practice this overhead becomes insignificant as the problem size increases, as it is something that only has to be done once per run. For version one I ran all my tests three times and calculated the average, however I decided that the extra time needed to do this was not worth the slight increase in accuracy.\\
+
+As you can see in Figure 3.1, there is a large reduction in runtime from V1 to V2. which allowed me to test much larger problem sizes. As I explained in section 1.3,  I believe the main reason for this is due to more efficient memory accessing. As you can see in Figure 3.1b and 3.2 there is again a slight decrease in time to run between V2 and V3.
+
+\begin{figure}[h]
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=1\linewidth, height=5cm]{V1-Timings} 
+\caption{Version 1 Timings}
+\label{fig:subim1}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=1\linewidth, height=5cm]{V2-Timings} 
+\caption{Version 2 Timings}
+\label{fig:subim2}
+\end{subfigure}
+\caption{Version 1 and 2 Timings}
+\end{figure}
+
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{V3-Timings}
+\caption{Version 3 Timings}
+\label{fig:subim3}
+\end{figure}
+\pagebreak
+\section{Speedup}
+Using the timing results that I gathered, I was able to calculate speedup for different values of p, at different problem sizes. As you can see in Figures 3.3 and 3.4, all of the parallel algorithms start off slower than than the sequentail, however by array size 250x250, all of them have speedup greater than one and so are finishing faster than their respective sequential algorithm. With some of the smaller processor counts you can see the speedup starts to level off. This is because of the Amdahl's law, which says that:
+\begin{quote}
+"Every program has a natural limit on the maximum speedup it can attain, regardless of the number of processors used"
+\end{quote}
+Unfortunately as there is a time limit for how long a program can run on balena for, we are unable to see where some of the larger threads counts speedup's level off. However as Gustafson's Law says, as the problem sizes get bigger, the sequential part effectively becomes smaller. Therefore I expect that if I was to be able to test larger problem sizes, the larger thread counts would continue to speedup.
+\\\\
+One oddity with my results is that for the problem sizes I was able to test, allowing the program to use 14 threads and even sometimes 12 threads, often outperforms the program that was allowed to use 16 threads. Initially I thought that I had made a mistake and was spawning one too many threads, however some simple testing by having each thread print out their thread ID, it was easy to show that this was not the case. It may be that if I was to continue to increase the problem size, 16 threads would eventually catch up and overtake them, however I was unable to test this hypotheses. 
+\\\\
+Finally, in a few cases the program actually gets superlinear speedup, for example for two, four and six threads of my final. This can bee seen in Figure 3.4 where the speedup lines go slightly above what you would expect their max speedup to be. There could be a few reasons for this, including that the sequential and parallel algorithms are fundamentally different, data is being more efficiently loaded into memory or there are slight variations in the time to run, that happens to cause superlinear speedup in some cases. I am pretty confident that both my sequential and parallel algorithms are so similar that this could not be the cause. While I tested the programs with cachegrind, the results did not show any noticable difference between how data was being pre-fetched for the single and parallel algorithms. However, due to how cachegrind works with multi-threaded programs, the results may not be as accurate compared to a single threaded program. Therefore I am unable to rule out how data is being pre-fetched as a reason for the slight superlinearity. On top of this, while running retests on Version 1, I noticed that even for the single threaded algorithm, there was slight differences in the time it took to run each time, which could also account for the small ammount of superlinear behaviour. Finally, as this superlinear behaviour is most prominent in my third version, there could be some intrinsic behaviour of AVX such as a warmup time that I do not know about and so have not taken into account.
+\begin{figure}[h]
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=1\linewidth, height=5cm]{V1-Speedup} 
+\caption{Version 1 Timings}
+\label{fig:subim4}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=1\linewidth, height=5cm]{V2-Speedup} 
+\caption{Version 2 Timings}
+\label{fig:subim5}
+\end{subfigure}
+\caption{Version 1 and 2 Timings}
+\end{figure}
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{V3-Speedup}
+\caption{Version 3 Timings}
+\label{fig:subim6}
+\end{figure}
+
+\section{Efficiency}
+As stated earlier, efficiency is a measure of how efficiently my parallel algorithm is using the extra processors. For example, if a program has an efficiency of 0.5 for a given problem size an number of processors, then half of the time that the processors could be doing work, is lost to overheads. These graphs show that my algorithms scale pretty as efficiency increases as the problem size does. Another way thinking about this, is that with larger problem sizes, the efficiency decreases slower as the core count increases . This follows the reasoning of Gustafson's law. One thing to note, is that for some problem sizes and processor counts, V3 has lower efficiency than V1. However as V3 is so much faster than V1, I don't think this is much of an issue. Finally, these graphs more easily show the superlinear behaviour that was discussed in section 3.2, 1as efficiency can be seen going above 1.
+\begin{figure}[h]
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=1\linewidth, height=5cm]{V1-Efficiency} 
+\caption{Version 1 Efficiency}
+\label{fig:subim4}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=1\linewidth, height=5cm]{V2-Efficiency} 
+\caption{Version 2 Efficiency}
+\label{fig:subim5}
+\end{subfigure}
+\caption{Version 1 and 2 Efficiency}
+\end{figure}
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{V3-Efficiency}
+\caption{Version 3 Efficiency}
+\label{fig:subim6}
+\end{figure}
+
+\section{Karp-Flatt Metric}
+Figures 3.7 and 3.8 show the Karp-Flatt metric of my algorithms at various array sizes. As the problem size increases, the Karp-Flatt metric decreases. This is consistent with Gustafson's law, which says that as the problem size increases, the effective sequential part of an algorithm decreases. In some of the tests, the Karp-Flatt metric is more than one as 
+\begin{figure}[h]
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=1\linewidth, height=5cm]{V1-Karp-Flatt} 
+\caption{Version 1 Karp-Flatt}
+\label{fig:subim4}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=1\linewidth, height=5cm]{V2-Karp-Flatt} 
+\caption{Version 2 Karp-Flatt}
+\label{fig:subim5}
+\end{subfigure}
+\caption{Version 1 and 2 Karp-Flatt}
+\end{figure}
+\begin{figure}[h]
+\includegraphics[width=1\textwidth]{V3-Karp-Flatt}
+\caption{Version 3 Karp-Flatt}
+\label{fig:subim6}
+\end{figure}
+
+\chapter{Conclusion}
+My current solution scales well with core count and problem size, with the max recorded speedup being around 12. My results also show that the efficiency of my solution drops as expected, as the thread count increases. The lowest Karp-Flatt value that I messured was around 0.011. Using this value in conjunction with Amdahl's law, I can predict a max speedup of my algorithm on an array size 1600 will be around 90.
 \end{document}
-
-TODO provide source for latency and throughput https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-optimization-manual.pdf

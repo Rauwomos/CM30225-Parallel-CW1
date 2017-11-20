@@ -73,13 +73,15 @@ void relaxRow(unsigned int iMax, unsigned int jMax, double** plane, double toler
 
     for(i=1; i<iMax; i++){
         for(j=((i+offset)%2)+1; j<jMax; j+=8) {
-            // Add Up & Down
+            // Load four values from above and below into 256bit data types
             v1 = _mm256_set_pd(plane[i-1][j],plane[i-1][j+2],plane[i-1][j+4],plane[i-1][j+6]);
             v2 = _mm256_set_pd(plane[i+1][j],plane[i+1][j+2],plane[i+1][j+4],plane[i+1][j+6]);
+            // Add Up & Down
             r1 = _mm256_add_pd(v1,v2);
-            // Add Left & Right
+            // Load four values from left and right into 256bit data types
             v1 = _mm256_set_pd(plane[i][j-1],plane[i][j+1],plane[i][j+3],plane[i][j+5]);
             v2 = _mm256_set_pd(plane[i][j+1],plane[i][j+3],plane[i][j+5],plane[i][j+7]);
+            // Add Left & Right
             r2 = _mm256_add_pd(v1,v2);
             // Add both results and divide them all by 4
             r1 = _mm256_add_pd(r1,r2);
@@ -110,7 +112,6 @@ void relaxRow(unsigned int iMax, unsigned int jMax, double** plane, double toler
             }
         }
     }
-
 }
 
 // TODO propper doc string
