@@ -1,0 +1,34 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Single",
+            "type": "shell",
+            "command": "gcc -Wall -Werror -Wextra -Wconversion -Wpedantic -O1 -lrt -mavx -std=gnu11 Single/single-checkerboard.c -o Single/single.o",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Build Single - min",
+            "type": "shell",
+            "command": "gcc -Wall -Werror -Wextra -Wconversion -Wpedantic -O1 -lrt -mavx -std=gnu11 Single/single-min.c -o Single/single.o",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Multi",
+            "type": "shell",
+            "command": "gcc -Wall -Werror -Wextra -Wconversion -Wpedantic -O1 -lrt -lpthread -mavx -std=gnu11 Multi/multi-checkerboard3.c -o Multi/multi.o",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}

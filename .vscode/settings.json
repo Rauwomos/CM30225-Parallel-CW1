@@ -1,0 +1,12 @@
+{
+    "C_Cpp.default.cStandard": "gnu11",
+    "files.associations": {
+        "time.h": "c",
+        "stdbool.h": "c",
+        "unistd.h": "c",
+        "stdlib.h": "c",
+        "math.h": "c",
+        "common.h": "c",
+        "stdio.h": "c"
+    }
+}

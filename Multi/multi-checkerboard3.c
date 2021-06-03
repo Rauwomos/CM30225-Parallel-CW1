@@ -109,8 +109,9 @@ void printPlane(double** plane, unsigned int sizeOfPlane) {
 }
 
 // Runs the relaxation technique on the 2d array of doubles that it is passed.
-void relaxPlaneThread(ThreadData* threadData)
+void* relaxPlaneThread(void* ptr)
 {  
+    ThreadData* threadData = (ThreadData*) ptr;
     unsigned int sizeOfInner = threadData->sizeOfPlane-2;
     unsigned int rowsPerThreadS = sizeOfInner/threadData->threadCount+1;
     unsigned int rowsPerThreadE = sizeOfInner/threadData->threadCount;
@@ -328,7 +329,7 @@ int main(int argc, char **argv)
 
     for(i=0; i<threadCount-1; i++) {
       /* create a second thread which executes inc_x(&x) */
-        if(pthread_create(&threads[i], NULL, (void*(*)(void*))relaxPlaneThread,
+        if(pthread_create(&threads[i], NULL, relaxPlaneThread,
            &threadData[i])) {
             fprintf(stderr, "Error creating thread\n");
             return 1;
